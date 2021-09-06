@@ -31,7 +31,7 @@ then
 fi
 
 echo -e "\n Creating grid: '${outputname}' \n"
-my_mincL=~/Documentos/C13Lab/scripts/minc/my_MincLaplaceDist
+my_mincL=./my_MincLaplaceDist
 
 $my_mincL -i ${filename}.mnc -o ${outputname} -like ${filename}.mnc -alpha $alpha
 

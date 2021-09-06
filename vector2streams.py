@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Nov 11 21:52:01 2020
-
 @author: dcortex
 
 
 New: python vector2streams.py minc_RGB seeds_txt img_ref stream_name
-
-
 """
 import numpy as np
 import nibabel as nib
