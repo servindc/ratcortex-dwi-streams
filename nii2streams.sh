@@ -21,9 +21,9 @@ no_ext=`basename ${filename%%.*}` # {id}_{side}
 
 IFS='_' read -ra my_array <<< "$no_ext"
 
-prefix=39B; 
-j=12
-side=l # r  
+#prefix=39B; 
+#j=12
+#side=l # r  
 
 #
 ./mask_closing.py 37A_l_inline.nii.gz 37A_l_outline.nii.gz
