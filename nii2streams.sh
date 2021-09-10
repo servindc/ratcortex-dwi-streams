@@ -35,7 +35,7 @@ prefix=${6:-${split_inline[-3]}}
 script_dir=`dirname $0`
 
 # print parameters
-echo -e "\n    Parameters: " $inline $outline $ref_image $dir_name $side $prefix"\n"
+#echo -e "\n    Parameters: " $inline $outline $ref_image $dir_name $side $prefix"\n"
 
 # Masks construction:
 echo -e "\n  Running: mask_closing.py $inline $outline $dir_name ${prefix} -s ${side}"
