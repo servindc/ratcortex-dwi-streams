@@ -20,18 +20,18 @@ filename="${input_grid%.*}"
 #if [ ${input_grid: -4} == ".nii" ]
 if [ -f ${outputname}_RGB.nii.gz ]
 then
-	echo -e "\n  '${outputname}_RGB.nii.gz' already exists \n"
+	echo -e "\n    '${outputname}_RGB.nii.gz' already exists \n"
 	exit 1
 fi
 
 if [ ! -f ${filename}.mnc ] # if input isn't .mnc
 then
-	echo -e "\n  Converting '$input_grid' to .mnc format \n"
+	echo -e "\n    Converting '$input_grid' to .mnc format \n"
 	nii2mnc ${filename}.nii
 fi
 
-echo -e "\n Creating grid: '${outputname}' \n"
-my_mincL=./my_MincLaplaceDist
+echo -e "\n    Creating grid: '${outputname}' \n"
+my_mincL=`dirname $0`"/my_MincLaplaceDist"
 
 $my_mincL -i ${filename}.mnc -o ${outputname} -like ${filename}.mnc -alpha $alpha
 

@@ -41,28 +41,37 @@ echo -e "\n  Running: mask_closing.py $inline $outline"
 $script_dir/mask_closing.py $inline $outline
 
 # Dilate cortical mask (9 pixels):
-input=$dir_name/${prefix}_${side}_grid_mid.nii.gz; voxels_dilated=9
-echo -e "\n  Running: mask_dilation.py ${input} $voxels_dilated"
-$script_dir/mask_dilation.py $input $voxels_dilated
+input1=$dir_name/${prefix}_${side}_grid_mid.nii.gz; voxels_dilated=9
+echo -e "\n  Running: mask_dilation.py ${input1} $voxels_dilated"
+$script_dir/mask_dilation.py $input1 $voxels_dilated
 
 # Create grid for mincLaplace input:
-
-echo -e "\n  Running: make_grid.sh "; exit 0
-$script_dir/make_grid.sh ${prefix}_${side}_grid_in_short.nii.gz ${prefix}_${side}_grid_mid_dilatedx9.nii.gz
+input1=$dir_name/${prefix}_${side}_grid_in_short.nii.gz
+input2=$dir_name/${prefix}_${side}_grid_mid_dilatedx${voxels_dilated}.nii.gz
+echo -e "\n  Running: make_grid.sh $input1 $input2"
+$script_dir/make_grid.sh $input1 $input2
 
 
 # Run 'mincLaplace' to generate `*_minc_thick_*.nii`:
-$script_dir/run_grid.sh ${prefix}_${side}_grid_123.mnc '_thick'
-
+input1=$dir_name/${prefix}_${side}_grid_123.mnc
+echo -e "\n  Running: run_grid.sh $input1 '_thick'"
+$script_dir/run_grid.sh $input1 '_thick'
 
 # Apply cortical mask `*_mid.nii.gz*` to `*_Grad[X-Z].nii`:
+input1=$dir_name/${prefix}_${side}_grid_mid.nii.gz
 for a in GradX GradY GradZ RGB
 do
-	mrcalc ${prefix}_${side}_grid_mid.nii.gz ${prefix}_${side}_minc_thick_${a}.nii.gz -mult ${prefix}_${side}_minc_${a}.nii.gz
+  input2=$dir_name/${prefix}_${side}_minc_thick_${a}.nii.gz
+  output=$dir_name/${prefix}_${side}_minc_${a}.nii.gz
+  echo -e "\n  Applying cortical mask '$input1' to '$input2':"
+	mrcalc $input1 $input2 -mult $output
 done
 
+
 # Generate seed points for streamlines
-$script_dir/get_seeds.py ${prefix}_${side}_outline.nii.gz
+input1=$dir_name/${prefix}_${side}_outline.nii.gz
+echo -e "\n  Running: get_seeds.py $input1"
+$script_dir/get_seeds.py $input1; exit 0
 
 # Create streamlines
 mkdir $dir_name/tck
