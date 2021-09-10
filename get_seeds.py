@@ -47,7 +47,7 @@ def smooth_curve(x, y, s=0.5):
     return smooth_points
 
 def get_seeds_from_nii(f_name, subject, side='l', smooth=False, save=True, s=0.1, 
-                        save_folder='~/Descargas'):
+                        save_folder='~/Descargas',):
     lines_volume = nib.load(f_name).get_fdata()
     
     seeds_dict = {}
@@ -90,18 +90,20 @@ if __name__ == "__main__":
     
     #f_name = f'minc/{subject}_{side}_outline.nii' 
     f_name = sys.argv[1]
+    out_dir = sys.argv[2]
+    prefix = sys.argv[3]
     try:
-        n_seeds = sys.argv[2]
+        n_seeds = sys.argv[4]
     except IndexError:
         n_seeds = 150
     print(f'\n  Using {n_seeds} seeds')
 
-    subject = basename(f_name).split('_')[0]
+    #subject = basename(f_name).split('_')[0]
     side = basename(f_name).split('_')[1]
-    seeds = get_seeds_from_nii(f_name, subject, side=side, smooth=True, save=True,
-                               s=10, save_folder=dirname(f_name))
+    seeds = get_seeds_from_nii(f_name, subject=prefix, side=side, smooth=True, save=True,
+                               s=10, save_folder=out_dir, )
 
-    out_dir = dirname(f_name)
+    #out_dir = dirname(f_name)
     for seeds_name in list(seeds.keys()):
         
         convert1 = (f"tckconvert {join(out_dir, seeds_name)}.txt"

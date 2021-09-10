@@ -73,7 +73,7 @@ def close_mask_pair(im_slice_2d_in, im_slice_2d_out):
 
 if __name__ == "__main__":
     import sys
-    from os.path import exists
+    from os.path import exists, basename
     from argparse import ArgumentParser
    
     parser = ArgumentParser(
@@ -83,18 +83,27 @@ if __name__ == "__main__":
                         help="Nifti image of inline mask.")
     parser.add_argument('outline', type=str,
                         help="Nifti image of outline mask.")
+    parser.add_argument('out_dir', type=str,
+                        help="Output directory.")
+    parser.add_argument('prefix', type=str, default=None,
+                        help="String prefix for the output files.")
     parser.add_argument('-s', '--side', type=str, default=None,
                         help=("Hemisphere side (left 'l' or right 'r')."))
     args = parser.parse_args()
     
     inline = args.inline
     outline = args.outline
+    out_dir = args.out_dir
+    prefix = args.prefix
     s = args.side
-    
-    # output filenames
-    grid_in = inline.split('.')[0][:-7]+"_grid_in.nii.gz"
-    grid_in9 = inline.split('.')[0][:-7]+"_grid_in_short.nii.gz"
-    grid_out = inline.split('.')[0][:-7]+"_grid_mid.nii.gz"
+
+    if s==None: s = inline.split('.')[0].split('_')[-2]
+
+    # output filenames inline.split('.')[0][:-7]
+    #grid_in = out_dir + "/" + prefix + s + "_grid_in.nii.gz"
+    grid_in = f"{out_dir}/{prefix}_{s}_grid_in.nii.gz"
+    grid_in9= f"{out_dir}/{prefix}_{s}_grid_in_short.nii.gz"
+    grid_out= f"{out_dir}/{prefix}_{s}_grid_mid.nii.gz"
     filenames = [grid_in, grid_in9, grid_out]
     
     for file in filenames:
@@ -104,7 +113,6 @@ if __name__ == "__main__":
     line_in = nib.load(inline)
     line_out = nib.load(outline)
     
-    if s==None: s = inline.split('.')[0].split('_')[-2]
     
     array_in = line_in.get_fdata()
     array_out = line_out.get_fdata()

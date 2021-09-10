@@ -33,7 +33,8 @@ if isfile(join(mask_path, mask_new_name)):
     print('\n    mask_dilation.py: Dilated mask already exists\n')
     quit()
 
-img = nib.load(join(mask_path, mask_file))
+#img = nib.load(join(mask_path, mask_file))
+img = nib.load(join(mask_file))
 mask = img.get_fdata()
 affine = img.affine
 
