@@ -3,7 +3,6 @@
 """
 @author: dcortex
 
-
 New: python vector2streams.py minc_RGB seeds_txt img_ref stream_name
 """
 import numpy as np
@@ -91,7 +90,7 @@ if __name__ == "__main__":
     out_dir = dirname(stream_name)
     
     if not isdir(out_dir):
-        print(f"\n  Directory '{out_dir}' doesn't exists\n")
+        print(f"\n    vector2streams.py: Directory '{out_dir}' doesn't exists\n")
         quit()
     
     img_RGB = nib.load(minc_RGB).get_fdata()

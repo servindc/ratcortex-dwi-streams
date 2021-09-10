@@ -1,17 +1,18 @@
 #!/bin/bash
 
-help()
-{
-  reset="\e[0m" # reset color
-  color="\e[1;33m" # yellow
-  echo -e "\n      ${color}Usage:${reset} `basename $0` inline_roi outline_roi ref_image [side] [out_dir]"
+reset="\e[0m" # reset color
+color="\e[1;33m" # yellow
+
+help(){
+  echo -e "\n      ${color}Usage:${reset} `basename $0` inline_roi outline_roi ref_image [side] [out_dir] [prefix]"
   echo -e "\n       ${color}Info:${reset} Generates columnar & laminar cortical streamlines within"
   echo -e "             the area between the provided ROIs."
-  echo -e "\n ${color}Parameters:${reset} inline_roi - Cortical inline (nifti format)"
+  echo -e "\n ${color}Parameters:${reset}  inline_roi - Cortical inline (nifti format)"
   echo -e "             outline_roi - Interior (nifti format)"
-  echo -e "             ref_image - reference subject image to get the affine transform (nifti format)"
-  echo -e "             side - hemisphere side of the given ROIs"
-  echo -e "             out_dir - Output dirctory (default = 'inline_roi' directory)"
+  echo -e "               ref_image - reference subject image to get the affine transform (nifti format)"
+  echo -e "                    side - hemisphere side of the given ROIs"
+  echo -e "                 out_dir - Output dirctory (default = 'inline_roi' directory)"
+  echo -e "                  prefix - string to prefix created filenames (default = prefix of 'inline_roi' "
   echo -e "\n    ${color}Returns:${reset} '*_out_resampled.tck' & '*_out_resampled_h.tck' streamlines files.\n"
 }
 
@@ -26,15 +27,12 @@ ref_image=$3
 side=${4:-"l"}
 dir_name=${5:-`dirname $inline`} # output directory
 no_ext=`basename ${inline%%.*}` # 'inline_roi' basename without file extension
-prefix=${no_ext::-9} # 'inline_roi' subject ID with path
+prefix_default=${no_ext::-9} # 'inline_roi' subject ID with path
+prefix=${6:-$prefix_default}
 script_dir=`dirname $0`
 
 # print parameters
-echo -e "\n    Parameters: " $inline $outline $ref_image $side $dir_name $prefix $script_dir"\n"
-
-#prefix=39B; 
-#j=12
-#side=l # r  
+#echo -e "\n    Parameters: " $inline $outline $ref_image $side $dir_name $prefix"\n"
 
 # Masks construction:
 echo -e "\n  Running: mask_closing.py $inline $outline"
@@ -71,15 +69,28 @@ done
 # Generate seed points for streamlines
 input1=$dir_name/${prefix}_${side}_outline.nii.gz
 echo -e "\n  Running: get_seeds.py $input1"
-$script_dir/get_seeds.py $input1; exit 0
+$script_dir/get_seeds.py $input1
 
 # Create streamlines
 mkdir $dir_name/tck
+input1=$dir_name/${prefix}_${side}_minc_RGB.nii.gz
+for seed_file in $dir_name/${prefix}_${side}_??_seeds_smooth_resampled.txt;
+do
+  IFS='_' read -ra split_name <<< "$seed_file"
+  j=${split_name[-4]}   # <- slice_n
+  #input2=$seed_file
+  input2=$dir_name/${prefix}_${side}_${j}_seeds_smooth_resampled.txt
+  output=$dir_name/tck/${prefix}_${side}_${j}_out
+  echo -e "\n  Running: vector2streams.py $input1 $input2 $ref_image $output"
+  $script_dir/vector2streams.py $input1 $input2 $ref_image $output
+done
 
-$script_dir/vector2streams.py ${prefix}_${side}_minc_RGB.nii.gz ${prefix}_${side}_${j}_seeds_smooth_resampled.txt ~/Documentos/C13Lab/dysplasia_dataset/preproc/$prefix/ses-P30/dwi/${prefix}_mask_brain.nii.gz tck/${prefix}_${side}_${j}_out
-
-# zip .txt files
-tar -czvf tck/${prefix}_${side}_${j}_out.tar.gz tck/${prefix}_${side}_${j}_out_*.txt
+# zip .txt files (-v to verbose)
+tar -czf $dir_name/tck/${prefix}_${side}_${j}_out.tar.gz $dir_name/tck/${prefix}_${side}_${j}_out_*.txt
 
 # remove '*.txt'
-rm tck/${prefix}_${side}_${j}_out_???.txt
+rm $dir_name/tck/${prefix}_${side}_${j}_out_???.txt
+
+# Check streamlines:
+echo -e "\n  ${color}To check created streamlines run:\n${reset}"
+echo -e "    mrview $ref_image -tractography.load $dir_name/tck/${prefix}_${side}_${j}_out_resampled.tck -plane 2 -fullscreen & \n"
