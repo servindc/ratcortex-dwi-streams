@@ -1,6 +1,6 @@
 # ratCortex-dMRIstreams
 
-Scripts to process dMRI volumes and create cortical streamlines in rat data.
+Code to process dMRI volumes and create cortical streamlines in rat data.
 
 ## Setup
 
@@ -17,6 +17,11 @@ Scripts to process dMRI volumes and create cortical streamlines in rat data.
 3. Activate the environment:
     ```bash
     conda activate cx-streams-env
+    ```
+
+4. Display script help:
+    ```bash
+    nii2streams.sh -h
     ```
 
 :information_source: [**Info & details**](https://hackmd.io/@servindc/ratCortex-dMRI)
