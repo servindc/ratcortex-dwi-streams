@@ -1,6 +1,6 @@
 # ratCortex-dMRIstreams
 
-Code to process dMRI volumes and create cortical streamlines in rat data.
+Code to process dMRI volumes and create cortical streamlines in rat data. :information_source: [**Info & details**](https://hackmd.io/@servindc/ratCortex-dMRI)
 
 ## Setup
 
@@ -23,5 +23,3 @@ Code to process dMRI volumes and create cortical streamlines in rat data.
     ```bash
     nii2streams.sh -h
     ```
-
-:information_source: [**Info & details**](https://hackmd.io/@servindc/ratCortex-dMRI)
