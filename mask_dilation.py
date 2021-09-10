@@ -30,7 +30,7 @@ mask_basename = basename(mask_file).split('.')[0]
 mask_new_name = mask_basename + f'_dilatedx{n_iter}.nii.gz'
 
 if isfile(join(mask_path, mask_new_name)):
-    print('\n     Dilated mask already exists\n')
+    print('\n    mask_dilation.py: Dilated mask already exists\n')
     quit()
 
 img = nib.load(join(mask_path, mask_file))
@@ -58,7 +58,7 @@ mask_dilated = binary_dilation(mask, structure=kernel_2d,
 
 #save
 img_new = nib.Nifti1Image(mask_dilated, affine)
-print(f'\n     Creating dilated mask:\n{join(mask_path, mask_new_name)}')
+print(f'\n    mask_dilation.py: Creating dilated mask:\n{join(mask_path, mask_new_name)}')
 nib.save(img_new, join(mask_path, mask_new_name) )
 
 

@@ -1,43 +1,58 @@
 #!/bin/bash
 
-if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "" ]; then
-  echo -e "\n	Usage: `basename $0` inline_roi (nifti) outline_roi (nifti) [side] [output_dir]"
-  echo -e "\n	       Generates columnar & laminar cortical streamlines within"
-  echo -e "\n	       the area between the provided ROIs."
-  echo -e "\n	Returns: '*_out_resampled.tck' & '*_out_resampled_h.tck'.\n"
-  exit 0
-fi
+help()
+{
+  reset="\e[0m" # reset color
+  color="\e[1;33m" # yellow
+  echo -e "\n      ${color}Usage:${reset} `basename $0` inline_roi outline_roi ref_image [side] [out_dir]"
+  echo -e "\n       ${color}Info:${reset} Generates columnar & laminar cortical streamlines within"
+  echo -e "             the area between the provided ROIs."
+  echo -e "\n ${color}Parameters:${reset} inline_roi - Cortical inline (nifti format)"
+  echo -e "             outline_roi - Interior (nifti format)"
+  echo -e "             ref_image - reference subject image to get the affine transform (nifti format)"
+  echo -e "             side - hemisphere side of the given ROIs"
+  echo -e "             out_dir - Output dirctory (default = 'inline_roi' directory)"
+  echo -e "\n    ${color}Returns:${reset} '*_out_resampled.tck' & '*_out_resampled_h.tck' streamlines files.\n"
+}
+
+if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "" ]; then help; exit 0; fi
 
 
 #out_folder=${3:-$(dirname $grid_in)}
 
 inline=$1
 outline=$2
-dir_name=${4:-`dirname $1`}
-prefix=`${inline%%.*}`
-side=${3:-"l"}
+ref_image=$3
+side=${4:-"l"}
+dir_name=${5:-`dirname $inline`} # output directory
+no_ext=`basename ${inline%%.*}` # 'inline_roi' basename without file extension
+prefix=${no_ext::-9} # 'inline_roi' subject ID with path
+script_dir=`dirname $0`
 
-no_ext=`basename ${filename%%.*}` # {id}_{side}
-
-IFS='_' read -ra my_array <<< "$no_ext"
+# print parameters
+echo -e "\n    Parameters: " $inline $outline $ref_image $side $dir_name $prefix $script_dir"\n"
 
 #prefix=39B; 
 #j=12
 #side=l # r  
 
-#
-./mask_closing.py 37A_l_inline.nii.gz 37A_l_outline.nii.gz
+# Masks construction:
+echo -e "\n  Running: mask_closing.py $inline $outline"
+$script_dir/mask_closing.py $inline $outline
 
-# Dilate cortical mask:
-./mask_dilation.py ${prefix}_${side}_grid_mid.nii.gz 9
-
+# Dilate cortical mask (9 pixels):
+input=$dir_name/${prefix}_${side}_grid_mid.nii.gz; voxels_dilated=9
+echo -e "\n  Running: mask_dilation.py ${input} $voxels_dilated"
+$script_dir/mask_dilation.py $input $voxels_dilated
 
 # Create grid for mincLaplace input:
-./make_grid.sh ${prefix}_${side}_grid_in_short.nii.gz ${prefix}_${side}_grid_mid_dilatedx9.nii.gz
+
+echo -e "\n  Running: make_grid.sh "; exit 0
+$script_dir/make_grid.sh ${prefix}_${side}_grid_in_short.nii.gz ${prefix}_${side}_grid_mid_dilatedx9.nii.gz
 
 
 # Run 'mincLaplace' to generate `*_minc_thick_*.nii`:
-./run_grid.sh ${prefix}_${side}_grid_123.mnc '_thick'
+$script_dir/run_grid.sh ${prefix}_${side}_grid_123.mnc '_thick'
 
 
 # Apply cortical mask `*_mid.nii.gz*` to `*_Grad[X-Z].nii`:
@@ -47,12 +62,12 @@ do
 done
 
 # Generate seed points for streamlines
-./get_seeds.py ${prefix}_${side}_outline.nii.gz
+$script_dir/get_seeds.py ${prefix}_${side}_outline.nii.gz
 
 # Create streamlines
 mkdir $dir_name/tck
 
-./vector2streams.py ${prefix}_${side}_minc_RGB.nii.gz ${prefix}_${side}_${j}_seeds_smooth_resampled.txt ~/Documentos/C13Lab/dysplasia_dataset/preproc/$prefix/ses-P30/dwi/${prefix}_mask_brain.nii.gz tck/${prefix}_${side}_${j}_out
+$script_dir/vector2streams.py ${prefix}_${side}_minc_RGB.nii.gz ${prefix}_${side}_${j}_seeds_smooth_resampled.txt ~/Documentos/C13Lab/dysplasia_dataset/preproc/$prefix/ses-P30/dwi/${prefix}_mask_brain.nii.gz tck/${prefix}_${side}_${j}_out
 
 # zip .txt files
 tar -czvf tck/${prefix}_${side}_${j}_out.tar.gz tck/${prefix}_${side}_${j}_out_*.txt

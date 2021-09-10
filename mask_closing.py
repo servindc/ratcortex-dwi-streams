@@ -99,7 +99,7 @@ if __name__ == "__main__":
     
     for file in filenames:
         if exists(grid_in):
-            print(f"\n  File '{grid_in}' already exists"); sys.exit()
+            print(f"\n    {parser.prog}: File '{grid_in}' already exists"); sys.exit()
     
     line_in = nib.load(inline)
     line_out = nib.load(outline)
