@@ -1,6 +1,6 @@
-# ratCortex-dMRIstreams
+# ratcortex-dwi-streams 
 
-Code to process dMRI volumes and create cortical streamlines in rat data. :information_source: [**Info & details**](https://hackmd.io/@servindc/ratCortex-dMRI)
+Code to process dMRI volumes and create cortical streamlines in rat data. :information_source: [**Info & details**](https://hackmd.io/@servindc/ratcortex-dwi)
 
 ## Setup
 
